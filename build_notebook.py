@@ -158,10 +158,12 @@ md(r"""
 
 - 천장까지의 거리 `d(m)` : 낮을수록 좋은 지표는 `m − 천장`, 높을수록 좋은 지표는 `천장 − m`
 - 바닥 거리 `d_floor = |천장 − 바닥|`
-- `skill(m) = min( d_floor / (d_floor + d(m)), 1 )` → 바닥이면 0.5, 천장이면 1
+- 지표와 기준값을 먼저 확인합니다. 지표가 없거나 NaN이면 skill 0입니다. 유효한 지표가 천장과 같거나 더 좋으면 나눗셈 전에 skill 1로 정하고, 그 밖의 경우에만 `d_floor / (d_floor + d(m))`를 계산합니다. → 바닥이면 0.5, 천장이면 1
 - 과제 점수 = Σ(가중치 × skill) × 100
 
 **이 실습의 환산 함수는 T1 전용입니다.** T2의 `scale_log_ratio`와 T3의 `severity_slope`는 측정값·바닥값·천장값을 먼저 절댓값으로 바꿔 작은 값이 좋도록 환산해야 합니다. 공식 지표의 모든 예외를 구현한 범용 환산기는 아닙니다.
+
+동일·역전·비유한 바닥·천장에서는 이 교육용 코드가 합산을 멈춥니다. 작은 견본에서 기준값이 올바른 순서로 놓이지 않았다면, 이를 지표 결측으로 바꾸거나 억지로 점수를 내지 말고 기준값을 확인하세요. 이것은 이 코드의 보수적인 입력 정책으로, 공식 서버의 모든 예외 처리를 재현했다는 뜻은 아닙니다.
 
 **천장**은 '정답의 절반을 나머지 절반에 대고 채점한 값'입니다. 여기서는 견본 E9.5(150개 세포)를 75개씩 둘로 나눠 같은 방식을 흉내 냅니다. 즉 아래 숫자는 **견본으로 만든 연습용 기준**이지, 공식 바닥·천장 값이 아닙니다(공식 값은 `index.json`과 평가 페이지에 게시판별로 나와 있습니다).
 """)
@@ -182,22 +184,42 @@ for k in ["de_score","de_direction","mmd_u","variogram"]:
 """)
 
 code(r"""
-# 공식 평가 페이지의 환산식 그대로 구현합니다.
+# 공식 설명을 바탕으로 T1 네 지표의 환산 과정을 보여 줍니다.
+# 지표 결측과 기준값 오류를 구분하며, 공식 채점기를 대체하지 않습니다.
+import math
 T1_WEIGHTS = {"de_score": 0.25, "de_direction": 0.25, "mmd_u": 0.30, "variogram": 0.20}
-HIGHER_IS_BETTER = {"de_score", "de_direction", "occupancy_dice"}
+HIGHER_IS_BETTER = {"de_score", "de_direction"}
 
 def skill(m, m_floor, m_ceil, key):
-    d_floor = abs(m_ceil - m_floor)
-    if d_floor == 0:
-        return float("nan")      # 바닥과 천장이 같으면 환산할 수 없음
+    if key not in T1_WEIGHTS:
+        raise ValueError("이 함수는 T1 네 지표만 지원합니다: " + key)
+    if m_floor is None or m_ceil is None or not all(math.isfinite(v) for v in (m_floor, m_ceil)):
+        raise ValueError("기준값 오류: 바닥과 천장은 유한한 숫자여야 합니다.")
+    d_floor = (m_ceil - m_floor) if key in HIGHER_IS_BETTER else (m_floor - m_ceil)
+    if not math.isfinite(d_floor) or d_floor <= 0:
+        raise ValueError("기준값 오류: 동일하거나 좋은 방향과 반대로 놓인 바닥·천장입니다.")
+    if m is None or math.isnan(m):
+        return 0.0               # 지표 결측: 가중치를 재분배하지 않음
+    if not math.isfinite(m):
+        raise ValueError("입력 오류: 지표값이 유한하지 않습니다.")
     d = (m_ceil - m) if key in HIGHER_IS_BETTER else (m - m_ceil)
+    if not math.isfinite(d):
+        raise ValueError("계산 범위 오류: 천장까지의 거리가 유한하지 않습니다.")
     if d <= 0:
-        return 1.0               # 천장보다 좋으면 1로 자름
-    return min(d_floor / (d_floor + d), 1.0)
+        return 1.0               # 천장과 같거나 더 좋으면 나눗셈 전에 처리
+    # d_floor + d가 넘쳐도 계산 가능한 경우를 위한 동치식입니다.
+    ratio = d / d_floor if d <= d_floor else d_floor / d
+    value = 1 / (1 + ratio) if d <= d_floor else ratio / (1 + ratio)
+    if not math.isfinite(value) or value <= 0:
+        raise ValueError("계산 범위 오류: 환산값을 표현할 수 없습니다.")
+    return value
 
 def task_score(metrics, weights=T1_WEIGHTS):
-    s = {k: skill(metrics[k], floor[k], ceiling[k], k) for k in weights}
-    total = 100 * sum(weights[k] * (0.0 if np.isnan(v) else v) for k, v in s.items())   # NaN 은 0점(공식 규칙)
+    if (not weights or any(k not in T1_WEIGHTS or not math.isfinite(w) or w < 0 for k, w in weights.items())
+            or not math.isclose(sum(weights.values()), 1.0, rel_tol=0, abs_tol=1e-12)):
+        raise ValueError("가중치 오류: 지원하는 지표의 유한한 비중 합계가 1이어야 합니다.")
+    s = {k: skill(metrics.get(k), floor.get(k), ceiling.get(k), k) for k in weights}
+    total = 100 * sum(weights[k] * v for k, v in s.items())
     return total, s
 
 for name in ["T1h_floor_copy_last", "T1h_ceiling_halfB"]:
@@ -241,8 +263,8 @@ code(r"""
 T2 = dict(task="T2", setting="heart", target=D/"sample_heart_9.5.h5ad")
 KEYS2 = ["de_score","de_direction","mmd_u","variogram","d2_shape","occupancy_dice","scale_log_ratio","neighborhood_mmd"]
 
-# (가) 받은 그대로 (정규화 안 된 숫자)
-r_raw = run("T2_copy_last_raw_counts", input=D/"sample_heart_9.25.h5ad", **T2); show(r_raw, KEYS2)
+# (가) 내려받은 값 그대로. 이 단계만으로 원시 카운트임을 판정하지 않습니다.
+r_raw = run("T2_copy_last_as_received", input=D/"sample_heart_9.25.h5ad", **T2); show(r_raw, KEYS2)
 
 # (나) 세포당 합계를 10,000으로 맞춘 뒤 log1p 한 판
 a925 = A["sample_heart_9.25"].copy()
@@ -314,7 +336,8 @@ try:
     veckit.score(input=D/"t1_shuffled_genes.h5ad", **T1)
     print("오류 없음(예상과 다름)")
 except Exception as e:
-    msg = str(e); print("예상대로 거부됨:", type(e).__name__, "-", msg[:300])
+    msg = str(e)
+    print("오류 발생 — 유전자 순서 오류인지 원인을 확인하세요:", type(e).__name__, "-", msg[:300])
     RESULTS["runs"]["T1_shuffled_genes_error"] = {"error": type(e).__name__, "message": msg[:500]}
 
 r = run("T1_shuffled_allow_reorder", input=D/"t1_shuffled_genes.h5ad", allow_reorder=True, **T1)

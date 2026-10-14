@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>VEC 한국어 점수 해설</title>
+<style>
+:root{--ink:#172b36;--muted:#516976;--teal:#06776c;--pale:#e9f5f0;--line:#cbdcd9;--warn:#895213;--paper:#fff;--bg:#f3f6f4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Malgun Gothic",sans-serif}main,header,footer{max-width:1120px;margin:auto;padding:24px}header{padding-top:48px}h1{font-size:clamp(1.8rem,4vw,2.9rem);line-height:1.2;margin:12px 0}h2{font-size:1.35rem;margin:0 0 12px}h3{font-size:1rem;margin:0 0 8px}p{margin:8px 0 16px}a{color:var(--teal)}button,input,select{font:inherit}button{cursor:pointer;border:1px solid var(--teal);border-radius:8px;padding:9px 14px;background:var(--paper);color:var(--teal)}button.primary{background:var(--teal);color:white}button:hover{filter:brightness(.95)}:focus-visible{outline:3px solid #de9217;outline-offset:3px}label{display:block;font-weight:650}input,select{max-width:100%;border:1px solid #91aca8;border-radius:6px;padding:8px;background:white;color:var(--ink)}input{width:120px}small,.muted{color:var(--muted)}.tag{font-size:.8rem;letter-spacing:.1em;font-weight:750;color:var(--teal)}.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:22px}.notice{background:var(--pale);border-left:4px solid var(--teal);padding:12px 16px}.warn{background:#fff6e8;border-left:4px solid #b97117;padding:12px 16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.flex{display:flex;gap:12px;flex-wrap:wrap;align-items:end}.field{margin-bottom:12px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:700}td input{width:104px}code{font-size:.86em;background:#eef3f2;padding:2px 4px;border-radius:4px;overflow-wrap:anywhere}.score{font-size:2rem;color:var(--teal);font-weight:800}.track{height:12px;background:#edf1ef;border-radius:8px;overflow:hidden}.bar{height:100%;background:var(--teal)}.bar-row{display:grid;grid-template-columns:150px 1fr 88px;align-items:center;gap:10px;margin:10px 0}.status{font-weight:650}.good{color:var(--teal)}.bad{color:#a14325}svg{display:block;width:100%;height:auto;background:#fbfdfc;border:1px solid var(--line);border-radius:8px}.quiz{padding:14px 0;border-top:1px solid var(--line)}.quiz button{margin:4px 6px 4px 0}summary{font-weight:700;cursor:pointer;margin-bottom:16px}footer{font-size:.86rem;padding-bottom:44px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:720px){main,header,footer{padding:16px}.card{padding:18px}.grid{grid-template-columns:1fr}.bar-row{grid-template-columns:95px 1fr 65px;font-size:.85rem}header{padding-top:30px}}
+</style>
+</head>
+<body>
+<header><div class="tag">VIRTUAL EMBRYO CHALLENGE · 한국어 학습 도구</div>
+<h1>점수가 바뀌는 이유를<br>숫자로 풀어 봅니다.</h1>
+<p>설치·로그인·생물 데이터 없이 배우는 T1–T3 점수 환산. 아래 예제는 모두 <strong>수학 연습용 가상 숫자</strong>이며, 공식 기준값이나 측정 결과가 아닙니다.</p>
+<p class="notice">비공식 교육 자료입니다. 공식 채점기·제출 서버에 연결하지 않습니다. 도구 코드는 입력값을 전송하거나 영구 저장하지 않습니다. 출처 링크를 누를 때만 외부 페이지로 이동합니다.</p>
+</header>
+<main id="app">
+<section class="card" aria-labelledby="lesson-heading">
+<div class="tag">01 · 지표 하나부터</div><h2 id="lesson-heading">원래 값에서 기여분까지 따라가기</h2>
+<p>기준값을 바꾸기 전에, 음수 지표와 음수 기준값이 어떻게 환산되는지 살펴보세요. 빈칸은 입력 대기이며, 실제 지표 결측은 <code>NaN</code>으로 표시합니다.</p>
+<div class="flex">
+<div class="field"><label for="lessonMetric">연습 지표</label><select id="lessonMetric"><option value="scale_log_ratio">T2 · TSR (scale_log_ratio)</option><option value="severity_slope">T3 · PSS (severity_slope)</option><option value="mmd_u">T1 · MMD (mmd_u)</option><option value="de_score">T1 · DES (de_score)</option></select></div>
+<div class="field"><label for="lessonRaw">연습 측정값</label><input id="lessonRaw" value="-2" inputmode="decimal"></div>
+<div class="field"><label for="lessonFloor">연습 바닥</label><input id="lessonFloor" value="-4" inputmode="decimal"></div>
+<div class="field"><label for="lessonCeiling">연습 천장</label><input id="lessonCeiling" value="1" inputmode="decimal"></div>
+</div>
+<div class="actions"><button id="lessonReset">가상 예제 초기화</button><button id="lessonMissing">결측 NaN으로 바꿔 보기</button></div>
+<p class="muted">PSS는 이미 로그로 표현된 채점기 지표입니다. 회귀 기울기 β를 넣거나 다시 로그를 취하지 마세요. 지표·바닥·천장은 같은 평가 조건에서 구한 한 묶음이어야 합니다.</p>
+<div class="grid"><div><div id="lessonStatus" role="status" aria-live="polite"></div><div id="workedSteps"></div></div><div><h3>천장까지 거리와 skill</h3><div id="curve"></div><p class="muted">가로축: 천장까지 거리 ÷ 바닥 거리. 곡선과 같은 내용을 아래 숫자로 확인할 수 있습니다.</p><table><caption class="sr-only">곡선의 대표 값</caption><thead><tr><th>거리 비율</th><th>skill</th></tr></thead><tbody><tr><td>0 (천장)</td><td>1</td></tr><tr><td>1 (바닥)</td><td>1/2</td></tr><tr><td>2</td><td>1/3</td></tr><tr><td>3</td><td>1/4</td></tr></tbody></table></div></div>
+</section>
+<section class="card" aria-labelledby="quiz-heading"><div class="tag">02 · 오해를 고쳐 보기</div><h2 id="quiz-heading">먼저 답을 고르고 해설을 읽으세요</h2>
+<div class="quiz"><h3>절댓값 처리: TSR가 −2와 +2라면?</h3><p>같은 바닥 −4, 천장 +1을 사용합니다.</p><button data-quiz="sign" data-answer="same">두 값의 skill이 같다</button><button data-quiz="sign" data-answer="negative">음수가 더 좋다</button><p id="quiz-sign" role="status"></p></div>
+<div class="quiz"><h3>T3에서 PSS만 결측이라면?</h3><p>나머지 모든 지표는 각각의 천장과 같습니다.</p><button data-quiz="missing" data-answer="75">총점 75</button><button data-quiz="missing" data-answer="100">남은 비중을 나눠 총점 100</button><p id="quiz-missing" role="status"></p></div>
+<div class="quiz"><h3>TSR 바닥 −2, 천장 +2로 계산할 수 있나요?</h3><button data-quiz="anchors" data-answer="error">절댓값이 같아 계산할 수 없다</button><button data-quiz="anchors" data-answer="ok">부호가 달라 계산할 수 있다</button><p id="quiz-anchors" role="status"></p></div>
+</section>
+<section class="card"><details id="taskDetails"><summary>03 · T1–T3 전체 지표를 직접 환산하기</summary>
+<p class="notice">도구는 숫자 형식과 수학적 기준값을 검사합니다. 평가 대상·전처리·채점기 버전의 호환성은 확인하지 못합니다. 공개 기준값은 해당 validation 게시판의 원시 지표에 대응합니다. 다른 로컬 연습용 정답에서 구한 지표와 섞어도 공식 점수가 되지 않습니다.</p>
+<label for="taskSelect">환산할 과제</label><select id="taskSelect"><option value="T1">T1 · 시간</option><option value="T2">T2 · 공간과 시간</option><option value="T3">T3 · 유전자 제거</option></select>
+<div class="actions"><button id="taskExample">가상 예제</button><button id="taskFloor">모두 바닥</button><button id="taskCeiling">모두 천장</button><button id="taskClear">수동 입력용으로 비우기</button></div>
+<p id="taskHint" class="muted"></p><div class="scroll"><table><caption>원시값 → 변환값 → skill → 점수 기여분. 비중은 고정되며 결측이라고 재분배하지 않습니다.</caption><thead><tr><th>지표·좋은 방향</th><th>측정값</th><th>바닥</th><th>천장</th><th>변환 후 측정값 / 바닥 / 천장</th><th>skill · 기여분</th></tr></thead><tbody id="metricRows"></tbody></table></div>
+<div id="taskStatus" role="status" aria-live="polite"></div><div id="groupBars"></div>
+<div id="odsPanel" hidden><label for="odsRatio">선택 입력: _dice_voxel_over_nn</label><input id="odsRatio" placeholder="예: 10.1" inputmode="decimal"><p id="odsMessage" class="warn">공식 설명은 비율이 약 10보다 충분히 커야 한다고 안내합니다. 10.1을 넘었다는 이유만으로 해석 조건 통과를 판정하지 않습니다. 이 조건은 ODS 비중을 지우거나 재분배하라는 뜻도 아닙니다.</p></div>
+</details></section>
+<section class="card"><details><summary>04 · 규정 §10의 시점 경계 배우기</summary>
+<p>이 화면은 <strong>선택한 시점 구간 하나</strong>를 설명합니다. Somite·Theiler 표기, 불명확한 시점, 유전형·다른 대립유전자·유사 표현형은 별도 검토가 필요합니다. 숫자 시점 연습으로 자료의 이용·재배포·공개 허가를 결정하지 않습니다.</p>
+<div class="flex"><div class="field"><label for="boundaryRule">적용할 시점 구간</label><select id="boundaryRule"><option value="extrapolation">T1·T2 심장 외삽: (E9.5, E13.5]</option><option value="heart">T2 심장 보간: (E8.25, E8.75)</option><option value="embryo">T2 배아 보간: (E7.25, E8.0)</option></select></div><div class="field"><label for="boundaryStage">E시점 (숫자만)</label><input id="boundaryStage" value="9.5" inputmode="decimal"></div></div>
+<p id="boundaryResult" class="warn" role="status" aria-live="polite"></p><p class="muted">( )는 열린 끝: 그 끝값은 구간에 포함하지 않습니다. [ ]는 닫힌 끝: 그 끝값을 포함합니다. 외삽에서는 E9.5와 E13.5의 처리가 다릅니다.</p>
+<p><a href="https://virtualembryo.ai/challenge/rules">전체 규정 §10 확인하기</a> · 출처 공개 의무와 데이터·모델 라이선스도 함께 확인하세요.</p>
+</details></section>
+<section class="card"><details id="checksDetails"><summary>05 · 합성 숫자로 구현을 확인하기</summary>
+<p>기대값은 독립적인 상수와 분수입니다. 아래 관측값은 버튼을 눌렀을 때 현재 도구가 계산한 값입니다. 생물 데이터·공식 게시판·학습 효과를 검증하는 시험이 아닙니다.</p>
+<button id="runChecks" class="primary">합성 검증 실행</button><p id="checkSummary" role="status" aria-live="polite"></p><div class="scroll"><table><thead><tr><th>사례</th><th>기대값</th><th>관측값</th><th>결과</th></tr></thead><tbody id="checkRows"></tbody></table></div>
+<p class="muted">더 넓은 독립 검증은 저장소의 <code>verify-score-core.cjs</code>로 실행할 수 있습니다. <a href="https://github.com/ByungwoongYoo/vec-ko-tutorial">소스·입문서·출력 없는 노트북</a> · <a href="https://github.com/ByungwoongYoo/vec-ko-tutorial/blob/codex/output-free-guide/SOURCE_MAP.md">출처와 시험 연결표</a></p>
+</details></section>
+</main>
+<footer>Byungwoong Yoo (Independent Researcher, BigWonder) · <a href="https://orcid.org/0009-0002-1797-3100">ORCID</a><br>
+이 HTML의 직접 작성한 문구·HTML·CSS·JavaScript는 MIT 라이선스입니다. 데이터와 제3자 자료의 권리는 별개입니다. 확인 날짜: 2026-10-14.<br>
+공식 출처: <a href="https://virtualembryo.ai/challenge/evaluation?section=scoring&amp;task=1">T1</a> · <a href="https://virtualembryo.ai/challenge/evaluation?section=scoring&amp;task=2">T2</a> · <a href="https://virtualembryo.ai/challenge/evaluation?section=scoring&amp;task=3">T3</a> · <a href="https://virtualembryo.ai/challenge/rules">규정 §10</a> · <a href="https://virtualembryo.ai/challenge/terms">데이터 약관</a></footer>
+<script id="score-core">
+/* SPDX-License-Identifier: MIT; Copyright (c) 2026 Byungwoong Yoo */
+(function(){
+'use strict';
+const DEFS={de_score:['DES','높을수록 좋음','higher'],de_direction:['DCS','높을수록 좋음','higher'],mmd_u:['MMD','낮을수록 좋음','lower'],variogram:['CSS','낮을수록 좋음','lower'],d2_shape:['SDD','낮을수록 좋음','lower'],occupancy_dice:['ODS','높을수록 좋음','higher'],scale_log_ratio:['TSR','절댓값이 작을수록 좋음','abs0'],neighborhood_mmd:['NFS','낮을수록 좋음','lower'],severity_slope:['PSS','절댓값이 작을수록 좋음','abs0']};
+function makeTask(label, groups){
+ const metrics=[];const gs=groups.map(function(g){
+  const group={id:g[0],label:g[1],weight:g[2],metricIds:g[3].map(x=>x[0])};
+  g[3].forEach(function(x){const d=DEFS[x[0]];metrics.push({id:x[0],short:d[0],direction:d[1],mode:d[2],groupId:g[0],withinWeight:x[1],groupWeight:g[2],weight:g[2]*x[1]});});return group;
+ });return {label:label,groups:gs,metrics:metrics};
+}
+function freeze(x){if(x&&typeof x==='object'){Object.values(x).forEach(freeze);Object.freeze(x);}return x;}
+const TASKS=freeze({
+ T1:makeTask('T1 · 시간',[['recovery','변화 유전자',.25,[['de_score',1]]],['direction','변화 방향',.25,[['de_direction',1]]],['distribution','세포 상태 분포',.3,[['mmd_u',1]]],['structure','함께 움직이는 구조',.2,[['variogram',1]]]]),
+ T2:makeTask('T2 · 공간과 시간',[['expression','발현 변화',.25,[['de_score',.5],['de_direction',.5]]],['distribution','세포 상태 분포',.25,[['mmd_u',.6],['variogram',.4]]],['shape','조직 모양과 크기',.25,[['d2_shape',1/3],['occupancy_dice',1/3],['scale_log_ratio',1/3]]],['local','국소 공간 배치',.25,[['neighborhood_mmd',1]]]]),
+ T3:makeTask('T3 · 유전자 제거',[['recovery','반응 유전자',.3,[['de_score',1]]],['direction','반응 방향',.25,[['de_direction',1]]],['magnitude','반응 크기',.25,[['severity_slope',1]]],['distribution','세포 상태 분포',.2,[['mmd_u',.6],['variogram',.4]]]])
+});
+function parseScalar(input, options){
+ options=options||{};
+ if(input===null||input===undefined||(typeof input==='number'&&Number.isNaN(input))){return options.allowMissing?{status:'missing',value:null}:{status:'error',message:'유한한 숫자를 입력하세요.'};}
+ if(typeof input==='number'){return Number.isFinite(input)?{status:'valid',value:input}:{status:'error',message:'무한대는 입력할 수 없습니다.'};}
+ if(typeof input!=='string')return {status:'error',message:'숫자 형식을 확인하세요.'};
+ const s=input.trim();
+ if(s==='')return options.allowMissing&&options.allowEmptyMissing?{status:'missing',value:null}:{status:'incomplete',message:'아직 입력하지 않은 값이 있습니다.'};
+ if(/^nan$/i.test(s))return options.allowMissing?{status:'missing',value:null}:{status:'error',message:'기준값은 NaN일 수 없습니다.'};
+ if(!/^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/.test(s))return {status:'error',message:'유한한 숫자 또는 지표 결측 표시 NaN을 입력하세요.'};
+ const v=Number(s);return Number.isFinite(v)?{status:'valid',value:v}:{status:'error',message:'표현할 수 있는 숫자 범위를 넘었습니다.'};
+}
+function getMetric(id){for(const t of Object.values(TASKS)){const m=t.metrics.find(x=>x.id===id);if(m)return m;}return null;}
+function evaluateMetric(id, row){
+ const m=typeof id==='string'?getMetric(id):id;
+ const fail=(status,message)=>({status:status,message:message,metric:m,skill:null,points:null});
+ if(!m||!DEFS[m.id])return fail('error','지원하지 않는 지표입니다.');
+ if(!['weight','withinWeight','groupWeight'].every(k=>Number.isFinite(m[k])&&m[k]>=0))return fail('error','지표 비중이 유효하지 않습니다.');
+ if(Math.abs(m.weight-m.groupWeight*m.withinWeight)>1e-12)return fail('error','그룹과 지표 비중이 일치하지 않습니다.');
+ row=row||{};
+ const f=parseScalar(row.floor),c=parseScalar(row.ceiling),r=parseScalar(row.raw,{allowMissing:true});
+ if([f,c,r].some(x=>x.status==='error'))return fail('error','숫자 형식과 유한한 기준값을 확인하세요.');
+ if([f,c,r].some(x=>x.status==='incomplete'))return fail('incomplete','입력 대기: 빈칸을 채우거나 실제 결측 지표에 NaN을 입력하세요.');
+ const tr=x=>m.mode==='abs0'?Math.abs(x):x;
+ const tf=tr(f.value),tc=tr(c.value),df=m.mode==='higher'?tc-tf:tf-tc;
+ if(!Number.isFinite(df)||df<=0)return fail('error','기준값 오류: 변환 후 바닥과 천장이 같거나 좋은 방향과 반대입니다.');
+ const base={metric:m,original:{raw:r.value,floor:f.value,ceiling:c.value},transformed:{raw:r.status==='missing'?null:tr(r.value),floor:tf,ceiling:tc},dFloor:df};
+ if(r.status==='missing')return Object.assign(base,{status:'missing',skill:0,points:0,d:null,message:'결측 지표: 비중은 유지하고 기여분은 0입니다.'});
+ const v=tr(r.value),d=m.mode==='higher'?tc-v:v-tc;
+ if(!Number.isFinite(d))return fail('error','계산 범위 오류: 천장까지의 거리가 유한하지 않습니다.');
+ let skill;
+ if(d<=0)skill=1;
+ else{const ratio=d<=df?d/df:df/d;skill=d<=df?1/(1+ratio):ratio/(1+ratio);if(!Number.isFinite(skill)||skill<=0)return fail('error','계산 범위 오류: 양의 환산값을 표현할 수 없습니다.');}
+ return Object.assign(base,{status:'ok',d:d,skill:skill,points:100*m.weight*skill,message:d<=0?'천장과 같거나 더 좋음: skill 1':skill<.5?'바닥보다 낮은 skill':skill===.5?'바닥과 같은 skill':'바닥보다 높은 skill'});
+}
+function evaluateTask(id, values){
+ const t=TASKS[id];if(!t)return {status:'error',total:null,metrics:[],groups:[],messages:['지원하지 않는 과제입니다.']};
+ const metrics=t.metrics.map(m=>evaluateMetric(m,(values||{})[m.id]||{raw:''}));
+ const bad=metrics.find(x=>x.status==='error')||metrics.find(x=>x.status==='incomplete');
+ if(bad)return {status:bad.status,total:null,metrics:metrics,groups:[],messages:[bad.message]};
+ const groups=t.groups.map(g=>({id:g.id,label:g.label,weight:g.weight,points:metrics.filter(x=>x.metric.groupId===g.id).reduce((s,x)=>s+x.points,0)}));
+ return {status:'ok',total:metrics.reduce((s,x)=>s+x.points,0),metrics:metrics,groups:groups,messages:[]};
+}
+function syntheticPreset(id, mode){
+ if(!TASKS[id])return {};
+ const values={};TASKS[id].metrics.forEach(m=>{
+  const a=m.mode==='abs0',h=m.mode==='higher';
+  const floor=a?-4:h?0:1,ceiling=a?1:h?1:0;
+  const raw=mode==='floor'?floor:mode==='ceiling'?ceiling:a?-2:h?.5:.5;
+  values[m.id]={raw:raw,floor:floor,ceiling:ceiling};
+ });return values;
+}
+const WINDOWS=freeze({extrapolation:{low:9.5,high:13.5,rightClosed:true},heart:{low:8.25,high:8.75,rightClosed:false},embryo:{low:7.25,high:8,rightClosed:false}});
+function evaluateBoundary(id, input){
+ const w=WINDOWS[id];if(!w)return {status:'error',message:'이 학습 화면은 유전형이나 미지원 구간을 판정하지 않습니다.'};
+ const p=parseScalar(input);if(p.status!=='valid')return {status:p.status,message:p.message};
+ return {status:'ok',stage:p.value,inside:p.value>w.low&&(w.rightClosed?p.value<=w.high:p.value<w.high),message:'선택한 숫자 시점 구간만 확인합니다. 자료 이용 허가가 아닙니다.'};
+}
+const api={TASKS:TASKS,evaluateMetric:evaluateMetric,evaluateTask:evaluateTask,parseScalar:parseScalar,evaluateBoundary:evaluateBoundary,syntheticPreset:syntheticPreset};
+if(typeof module!=='undefined'&&module.exports)module.exports=api;else window.VecScore=api;
+})();
+</script>
+<script id="score-ui">
+/* SPDX-License-Identifier: MIT; Copyright (c) 2026 Byungwoong Yoo */
+(function(){
+'use strict';
+const C=window.VecScore;
+const $=id=>document.getElementById(id);
+const fmt=v=>v===null?'결측':!Number.isFinite(v)?'—':Math.abs(v)!==0&&(Math.abs(v)<.0001||Math.abs(v)>=1e6)?v.toExponential(4):Number(v.toFixed(6)).toString();
+const txt=(id,s)=>{$(id).textContent=s;};
+function cells(table, rows){table.replaceChildren();rows.forEach(function(values){const tr=document.createElement('tr');values.forEach(function(v){const td=document.createElement('td');td.textContent=v;tr.append(td);});table.append(tr);});}
+function drawCurve(result){
+ const plot=$('curve');const ns='http://www.w3.org/2000/svg';const svg=document.createElementNS(ns,'svg');
+ svg.setAttribute('viewBox','0 0 440 240');svg.setAttribute('role','img');svg.setAttribute('aria-label','거리 비율이 늘수록 skill이 줄어드는 곡선. 같은 값은 아래 표에 있습니다.');
+ function node(tag,attrs,label){const e=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(label)e.textContent=label;svg.append(e);return e;}
+ const px=x=>50+(x+1)*90,py=s=>200-s*155;
+ node('path',{d:'M50 40V200H415',fill:'none',stroke:'#91aca8','stroke-width':1});
+ let d='';for(let i=0;i<=120;i++){const x=-1+i/30,s=x<=0?1:1/(1+x);d+=(i?'L':'M')+px(x)+' '+py(s)+' ';}
+ node('path',{d:d,fill:'none',stroke:'#06776c','stroke-width':3});
+ [-1,0,1,2,3].forEach(x=>node('text',{x:px(x),y:222,'text-anchor':'middle','font-size':12,fill:'#516976'},String(x)));
+ [0,.5,1].forEach(s=>node('text',{x:40,y:py(s)+4,'text-anchor':'end','font-size':12,fill:'#516976'},String(s)));
+ if(result&&result.status==='ok'){const x=result.d/result.dFloor;if(Number.isFinite(x)&&x>=-1&&x<=3){node('circle',{cx:px(x),cy:py(result.skill),r:5,fill:'#c76c15'});node('text',{x:Math.min(px(x)+9,310),y:Math.max(py(result.skill)-10,24),'font-size':12,fill:'#895213'},'입력 skill '+fmt(result.skill));}}
+ plot.replaceChildren(svg);
+}
+function lessonValues(){return {raw:$('lessonRaw').value,floor:$('lessonFloor').value,ceiling:$('lessonCeiling').value};}
+function renderLesson(){
+ const r=C.evaluateMetric($('lessonMetric').value,lessonValues());
+ txt('lessonStatus',r.status==='ok'?r.message:r.message||'입력을 확인하세요.');
+ const box=$('workedSteps');box.replaceChildren();
+ if(r.status==='ok'||r.status==='missing'){
+  const table=document.createElement('table');const cap=document.createElement('caption');cap.textContent='입력한 값에 따른 환산 풀이';table.append(cap);const body=document.createElement('tbody');table.append(body);
+  const higher=r.metric.mode==='higher',within=r.metric.withinWeight===1/3?'1/3':fmt(r.metric.withinWeight);
+  const distance=r.status==='missing'?'결측':(higher?fmt(r.transformed.ceiling)+' − '+fmt(r.transformed.raw):fmt(r.transformed.raw)+' − '+fmt(r.transformed.ceiling))+' = '+fmt(r.d);
+  const floorDistance=(higher?fmt(r.transformed.ceiling)+' − '+fmt(r.transformed.floor):fmt(r.transformed.floor)+' − '+fmt(r.transformed.ceiling))+' = '+fmt(r.dFloor);
+  const skillText=r.status==='missing'?'결측 → 0':r.d<=0?'천장과 같거나 더 좋음 → 1':fmt(r.dFloor)+' / ('+fmt(r.dFloor)+' + '+fmt(r.d)+') = '+fmt(r.skill);
+  cells(body,[['① 원래 측정값 / 바닥 / 천장',fmt(r.original.raw)+' / '+fmt(r.original.floor)+' / '+fmt(r.original.ceiling)],['② 변환 후 측정값 / 바닥 / 천장',fmt(r.transformed.raw)+' / '+fmt(r.transformed.floor)+' / '+fmt(r.transformed.ceiling)],['③ 천장까지 거리 d',distance],['④ 바닥 거리 d_floor',floorDistance],['⑤ skill',skillText],['⑥ 그룹 비중 × 내부 비중 × skill × 100',fmt(r.metric.groupWeight)+' × '+within+' × '+fmt(r.skill)+' × 100 = '+fmt(r.points)+'점']]);box.append(table);
+  const p=document.createElement('p');p.className='muted';p.textContent=r.metric.mode==='abs0'?'세 입력 모두 절댓값으로 바꾸고, 작을수록 좋은 지표로 환산합니다.':'이 지표에는 절댓값 변환을 하지 않습니다.';box.append(p);
+ }else{const p=document.createElement('p');p.className='warn';p.textContent='이전 환산 결과를 지웠습니다. 빈칸이나 잘못된 기준값을 확인하세요. 같은·역전된 기준값에서 중단하는 것은 이 도구의 입력 정책입니다.';box.append(p);}
+ drawCurve(r);
+}
+function resetLesson(){const id=$('lessonMetric').value,a=id==='scale_log_ratio'||id==='severity_slope',h=id==='de_score';$('lessonRaw').value=a?-2:.5;$('lessonFloor').value=a?-4:h?0:1;$('lessonCeiling').value=a?1:h?1:0;renderLesson();}
+['lessonRaw','lessonFloor','lessonCeiling'].forEach(id=>$(id).addEventListener('input',renderLesson));
+$('lessonMetric').addEventListener('change',resetLesson);$('lessonReset').addEventListener('click',resetLesson);$('lessonMissing').addEventListener('click',()=>{$('lessonRaw').value='NaN';renderLesson();});
+const QUIZ={
+ sign:{answer:'same',text:'두 측정값은 모두 2, 바닥은 4, 천장은 1로 변환됩니다. d=1, d_floor=3이므로 skill=3/(3+1)=0.75입니다. 원래 부호만 비교하면 오해할 수 있습니다.'},
+ missing:{answer:'75',text:'PSS의 전체 비중 25%를 유지하고 기여분만 0으로 처리합니다. 나머지 75%가 모두 천장이므로 총점은 75입니다. 결측 지표를 평균에서 빼지 않습니다.'},
+ anchors:{answer:'error',text:'절댓값을 취하면 바닥과 천장이 둘 다 2입니다. 기준점이 같아 환산할 수 없습니다. 이 도구는 그 상태를 결측 지표 0점과 구분해 계산을 멈춥니다.'}
+};
+document.querySelectorAll('[data-quiz]').forEach(b=>b.addEventListener('click',()=>{const q=QUIZ[b.dataset.quiz];txt('quiz-'+b.dataset.quiz,(b.dataset.answer===q.answer?'맞았습니다. ':'다시 살펴보세요. ')+q.text);}));
+function renderRows(mode){
+ const id=$('taskSelect').value,t=C.TASKS[id],v=C.syntheticPreset(id,mode||'example');const body=$('metricRows');body.replaceChildren();
+ t.metrics.forEach(m=>{const tr=document.createElement('tr');const first=document.createElement('td');first.textContent=m.short+' · '+m.direction+' · 전체 비중 '+fmt(100*m.weight)+'%';const code=document.createElement('code');code.textContent=m.id;first.append(document.createElement('br'),code);tr.append(first);
+  ['raw','floor','ceiling'].forEach(k=>{const td=document.createElement('td'),input=document.createElement('input');input.value=mode==='clear'?'':v[m.id][k];input.dataset.metric=m.id;input.dataset.part=k;input.setAttribute('aria-label',id+' '+m.id+' '+({raw:'측정값',floor:'바닥',ceiling:'천장'})[k]);input.setAttribute('inputmode','decimal');input.addEventListener('input',renderTask);td.append(input);tr.append(td);});
+  const transforms=document.createElement('td');transforms.id='transform-'+m.id;tr.append(transforms);const output=document.createElement('td');output.id='result-'+m.id;tr.append(output);body.append(tr);
+ });
+ $('odsPanel').hidden=id!=='T2';txt('taskHint',id==='T3'?'PSS severity_slope는 이미 로그값입니다. β나 다시 로그를 취한 값을 넣지 않습니다.':'측정값이 실제로 없으면 NaN을 입력하세요. 빈칸은 입력 대기로 처리합니다.');
+ renderTask();
+}
+function taskValues(){const values={};$('metricRows').querySelectorAll('input').forEach(i=>{if(!values[i.dataset.metric])values[i.dataset.metric]={};values[i.dataset.metric][i.dataset.part]=i.value;});return values;}
+function renderTask(){
+ const r=C.evaluateTask($('taskSelect').value,taskValues());r.metrics.forEach(x=>{
+  const id=x.metric.id;txt('transform-'+id,x.transformed?[x.transformed.raw,x.transformed.floor,x.transformed.ceiling].map(fmt).join(' / '):'—');
+  txt('result-'+id,x.skill!==null&&x.skill!==undefined?'skill '+fmt(x.skill)+' · '+fmt(x.points)+'점'+(x.status==='missing'?' (결측)':''):x.status==='incomplete'?'입력 대기':'입력 오류');
+ });
+ const status=$('taskStatus');status.replaceChildren();const label=document.createElement('p');
+ label.className=r.status==='ok'?'score':'warn';label.textContent=r.status==='ok'?'입력한 값에 따른 환산: '+fmt(r.total)+' / 100':(r.status==='incomplete'?'계산 대기. ':'계산 중단. ')+(r.messages[0]||'입력을 확인하세요.');status.append(label);
+ const bars=$('groupBars');bars.replaceChildren();if(r.status==='ok')r.groups.forEach(g=>{const row=document.createElement('div');row.className='bar-row';const name=document.createElement('span');name.textContent=g.label;const track=document.createElement('div');track.className='track';const bar=document.createElement('div');bar.className='bar';bar.style.width=(g.weight?Math.max(0,Math.min(100,g.points/g.weight)):0)+'%';track.append(bar);const value=document.createElement('span');value.textContent=fmt(g.points)+'점';row.append(name,track,value);bars.append(row);});
+}
+$('taskSelect').addEventListener('change',()=>renderRows('example'));[['taskExample','example'],['taskFloor','floor'],['taskCeiling','ceiling'],['taskClear','clear']].forEach(x=>$(x[0]).addEventListener('click',()=>renderRows(x[1])));
+$('odsRatio').addEventListener('input',()=>{const p=C.parseScalar($('odsRatio').value);const prefix=p.status==='valid'?'입력 비율 '+fmt(p.value)+'. ':p.status==='incomplete'?'': '비율 숫자 형식을 확인하세요. ';txt('odsMessage',prefix+'공식 설명은 비율이 약 10보다 충분히 커야 한다고 안내합니다. 이 숫자만으로 해석 조건 통과를 판정하지 않습니다. ODS 비중은 바꾸지 않습니다.');});
+function renderBoundary(){const r=C.evaluateBoundary($('boundaryRule').value,$('boundaryStage').value);txt('boundaryResult',r.status==='ok'?(r.inside?'선택한 제한 구간 안에 있습니다. ':'이 시점 구간 제한에는 해당하지 않습니다. ')+'이 결과는 자료 사용·재배포·공개 허가가 아닙니다. 다른 시점·유전형 제한, 출처와 라이선스는 별도로 확인하세요.':'시점 검토 필요: 숫자만 입력하세요. Somite·Theiler·불명확한 시점은 이 화면에서 판정하지 않습니다.');}
+['boundaryRule','boundaryStage'].forEach(id=>$(id).addEventListener(id==='boundaryRule'?'change':'input',renderBoundary));
+function runChecks(){
+ const metric=(raw,floor,ceiling,id)=>C.evaluateMetric(id||'mmd_u',{raw:raw,floor:floor,ceiling:ceiling});
+ const missing=C.syntheticPreset('T3','ceiling');missing.severity_slope.raw='NaN';
+ const cases=[
+ ['낮을수록 좋은 지표: 바닥',.5,()=>metric(3,3,2).skill],
+ ['천장보다 좋은 값',1,()=>metric(1,3,2).skill],
+ ['바닥보다 낮은 skill',1/3,()=>metric(4,3,2).skill],
+ ['TSR 음수 세 입력 변환',.75,()=>metric(-2,-4,-1,'scale_log_ratio').skill],
+ ['TSR 양수 측정값도 동일',.75,()=>metric(2,-4,-1,'scale_log_ratio').skill],
+ ['절댓값이 같은 기준값','error',()=>metric(0,-2,2,'scale_log_ratio').status],
+ ['T3 PSS 결측: 비중 유지',75,()=>C.evaluateTask('T3',missing).total],
+ ['T2 모든 지표가 천장일 때 총점 100',100,()=>C.evaluateTask('T2',C.syntheticPreset('T2','ceiling')).total],
+ ['빈칸은 입력 대기','incomplete',()=>metric('',1,0).status],
+ ['분모 합이 넘치는 경우의 바닥',.5,()=>metric(1e308,1e308,0).skill],
+ ['외삽 E9.5: 열린 끝',false,()=>C.evaluateBoundary('extrapolation',9.5).inside],
+ ['외삽 E13.5: 닫힌 끝',true,()=>C.evaluateBoundary('extrapolation',13.5).inside]
+ ];let passed=0;const rows=cases.map(function(x){let observed;try{observed=x[2]();}catch(e){observed='실행 오류';}const ok=typeof x[1]==='number'?Number.isFinite(observed)&&Math.abs(observed-x[1])<1e-10:observed===x[1];if(ok)passed++;return [x[0],String(x[1]),String(observed),ok?'통과':'실패'];});
+ cells($('checkRows'),rows);txt('checkSummary','합성 검증: '+passed+' / '+cases.length+' 통과. 생물학적 검증이나 공식 점수가 아닙니다.');
+}
+$('runChecks').addEventListener('click',runChecks);renderLesson();renderRows('example');renderBoundary();
+})();
+</script>
+</body>
+</html>

@@ -9,8 +9,11 @@ This repository uses two licences.
    Summary:   https://creativecommons.org/licenses/by/4.0/
 
 2) Original code: MIT
-   All other code in build_notebook.py and every notebook code cell, including
-   code comments and printed messages, is licensed under the MIT License below.
+   The entire score-explainer.html file, including its HTML, CSS, JavaScript and
+   original interface text, and verify-score-core.cjs are licensed under the
+   MIT License below. All other
+   code in build_notebook.py and every notebook code cell, including code
+   comments and printed messages, is also licensed under that MIT License.
 
 Third-party quotations and adapted official text, the public sample .h5ad files,
 and sample-derived outputs (notebook outputs and results/) are not relicensed by
