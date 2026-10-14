@@ -1,5 +1,7 @@
 # 가상 배아 챌린지(VEC) 한국어 점수 해설 도구와 입문 실습
 
+[브라우저에서 열기](https://byungwoongyoo.github.io/vec-ko-tutorial/score-explainer.html)
+
 > **비공식 커뮤니티 안내서입니다.** 대회 주최 측이 만들거나 검토한 자료가 아닙니다. 이 문서와 공식 사이트 내용이 다르면 **언제나 공식 사이트가 맞습니다.**
 > 공식 사이트: https://virtualembryo.ai/challenge · 내용 확인 날짜: 2026년 10월 14일(한국 시간)
 
