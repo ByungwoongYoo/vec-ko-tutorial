@@ -1,0 +1,12 @@
+sample_data/
+results/
+sources/
+*.h5ad
+*.executed.ipynb
+rerun*.ipynb
+__pycache__/
+.ipynb_checkpoints/
+venv/
+.venv/
+FILING*.md
+review_receipt*.json
